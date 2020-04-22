@@ -11,15 +11,6 @@ typedef enum
 
 typedef struct
 {
-	thread_data_struct_t* head;
-	unsigned int short burst_time;
-	unsigned char max_th;
-	unsigned char no_th;
-	unsigned char curr_th;
-}struct_thread_lib_t;
-
-typedef struct
-{
 	unsigned char name[16];
 	unsigned char zero; /* just to be safe */
 	unsigned char id;
@@ -28,11 +19,22 @@ typedef struct
 	void* (*func)(void*);
 }struct_thread_t;
 
-typedef struct struct_thread_data_struct
+
+struct struct_thread_data
 {
 	struct_thread_t* thread_node;
-	struct_thread_t* next_node;
-}thread_data_struct_t;
+	struct struct_thread_data* next_node;
+};
+typedef struct struct_thread_data thread_data_struct_t;
+
+typedef struct
+{
+	thread_data_struct_t* head;
+	unsigned int short burst_time;
+	unsigned char max_th;
+	unsigned char no_th;
+	unsigned char curr_th;
+}struct_thread_lib_t;
 
 extern thread_error_t init_lib(struct_thread_lib_t* arg);
 extern thread_error_t create_thread( void* (*func)(void*), struct_thread_t arg, void* thread_arg);
