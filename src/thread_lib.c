@@ -3,7 +3,7 @@
 #include <string.h>
 #include <signal.h>
 #include <time.h>
-#include "thread_lib.h"
+#include "../inc/thread_lib.h"
 
 extern void scheduler(union sigval sig);
 

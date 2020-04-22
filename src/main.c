@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "thread_lib.h"
+#include "../inc/thread_lib.h"
 
 void* func(void* arg)
 {
