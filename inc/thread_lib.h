@@ -6,6 +6,8 @@ typedef enum
 	THREAD_LIB_OK = 0,
 	THREAD_LIB_NULL_PTR = -255,
 	THREAD_LIB_RESOURCE_ERR,
+	THREAD_LIB_ALREADY_INITIALIZED,
+	THREAD_LIB_SYS_ERR,
 	THREAD_LIB_INVALID = 255,
 }thread_error_t;
 
@@ -34,9 +36,10 @@ typedef struct
 	unsigned char max_th;
 	unsigned char no_th;
 	unsigned char curr_th;
+	unsigned char hymen_broken;
 }struct_thread_lib_t;
 
-extern thread_error_t init_lib(struct_thread_lib_t* arg);
+extern thread_error_t init_lib();
 extern thread_error_t create_thread( void* (*func)(void*), struct_thread_t arg, void* thread_arg);
 extern unsigned char get_thread_cnt(void);
 

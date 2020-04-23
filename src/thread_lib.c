@@ -3,28 +3,52 @@
 #include <string.h>
 #include <signal.h>
 #include <time.h>
+#include <errno.h>
 #include "../inc/thread_lib.h"
 
-extern void scheduler(union sigval sig);
+#define MAX_THREADS 255
+#define DEFAULT_BURST_TIME 20 /* in milliseconds */
+
+extern void scheduler(int sig, siginfo_t *info, void *ucontext);
 
 static struct_thread_lib_t thread_bhv;
 static timer_t schedule_timer;
 
-thread_error_t init_lib(struct_thread_lib_t* arg)
+thread_error_t init_lib()
 {
 	struct sigevent sev;
+	sigset_t mask;
+	struct sigaction sa;
 	
-	if(!arg)
-		return THREAD_LIB_NULL_PTR;
-
-	thread_bhv.max_th = arg->max_th;
-	thread_bhv.burst_time = arg->burst_time;
+	if(thread_bhv.hymen_broken)
+		return THREAD_LIB_ALREADY_INITIALIZED;
+		
+	thread_bhv.max_th = MAX_THREADS;
+	thread_bhv.burst_time = DEFAULT_BURST_TIME;
 	thread_bhv.head = NULL;
 	thread_bhv.no_th = 0;
+	thread_bhv.hymen_broken = 1;
 	
-	sev.sigev_notify = SIGEV_THREAD;
-	sev.sigev_notify_function = scheduler;
-	sev.sigev_notify_attributes = NULL;
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = scheduler;
+	sigemptyset(&sa.sa_mask);
+	if(sigaction(SIGRTMIN, &sa, NULL) == -1)
+	{
+		printf("Sigaction failed %s\n",strerror(errno));
+		return THREAD_LIB_SYS_ERR;
+	}
+/*	
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGRTMIN);
+	if(sigprocmask(SIG_SETMASK, &mask, NULL) == -1)
+	{
+		printf("Mask Signal failed %s\n",strerror(errno));
+		return THREAD_LIB_SYS_ERR;
+	}
+*/	
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &schedule_timer;
 	
 	if(timer_create(CLOCK_MONOTONIC, &sev, &schedule_timer) != 0)
 		return THREAD_LIB_RESOURCE_ERR;
@@ -37,7 +61,7 @@ unsigned char get_thread_cnt(void)
 	return thread_bhv.no_th;
 }
 
-void scheduler(union sigval sig)
+void scheduler(int sig, siginfo_t *info, void *ucontext)
 {
 	thread_data_struct_t* start = thread_bhv.head;
 		

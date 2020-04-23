@@ -11,14 +11,10 @@ void* func(void* arg)
 
 int main()
 {
-	struct_thread_lib_t thread_lib;
 	thread_error_t Error;
 	struct_thread_t thread_info = {"Mythread", 0, 0, 0, NULL, NULL};
 	
-	thread_lib.max_th = 2;
-	thread_lib.burst_time = 20;
-	
-	Error = init_lib(&thread_lib);
+	Error = init_lib();
 	if( Error != THREAD_LIB_OK )
 	{
 		exit(1);
