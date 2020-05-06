@@ -1,0 +1,5 @@
+1. Check whether setjmp does stack winding and unwinding
+		- Created a Sample program and ran it in gdb. Able to Step inside setjmp function
+		- Used Strace to check for syscall uses. No setjmp is not using any syscall function
+2. Check setjmp.s code from glibc for Code Understanding
+		- 
